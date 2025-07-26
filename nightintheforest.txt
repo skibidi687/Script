@@ -535,7 +535,7 @@ local function loadMainHub()
 local Http = game:GetService("HttpService")
 local TPS = game:GetService("TeleportService")
 
-Tabs.Visual:Button({
+Tabs.Visual:AddButton({
     Title = "Skip day [server hop]",
     Callback = function()
 local Api = "https://games.roblox.com/v1/games/"
@@ -586,7 +586,7 @@ RunService.Stepped:Connect(function()
     end
 end)
 
-Tabs.Visual:Toggle({
+Tabs.Visual:AddToggle({
     Title = "No clip",
     Value = false,
     Callback = function(state)
