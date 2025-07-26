@@ -89,6 +89,7 @@ local function loadMainHub()
         Info = Window:AddTab({ Title = "Info", Icon = "info" }),
         Main = Window:AddTab({ Title = "Main", Icon = "book" }),
         Bring = Window:AddTab({ Title = "Bring", Icon = "gem" }),
+        Visual = Window:AddTab({ Title = "Visual", Icon = "bookmark" }),
         Teleport = Window:AddTab({ Title = "Teleport", Icon = "compass" }),
         Esp = Window:AddTab({ Title = "Esp", Icon = "ghost" }),
     }
@@ -529,6 +530,78 @@ local function loadMainHub()
             end
         end
     })
+
+    -- Visual Tab
+local Http = game:GetService("HttpService")
+local TPS = game:GetService("TeleportService")
+
+Tabs.Visual:Button({
+    Title = "Skip day [server hop]",
+    Callback = function()
+local Api = "https://games.roblox.com/v1/games/"
+local _place = game.PlaceId
+local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=100"
+function ListServers(cursor)
+   local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+   return Http:JSONDecode(Raw)
+end
+local Server, Next; repeat
+   local Servers = ListServers(Next)
+   Server = Servers.data[1]
+   Next = Servers.nextPageCursor
+until Server
+TPS:TeleportToPlaceInstance(_place,Server.id,game.Players.LocalPlayer)
+    end
+}) 
+
+local IJ = false
+Tabs.Visual:Toggle({
+    Title = "Inf jump",
+    Value = false, 
+    Callback = function(state)
+                IJ = state
+      game:GetService("UserInputService").JumpRequest:Connect(function()
+          if IJ then
+              game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass('Humanoid'):ChangeState("Jumping")
+          end
+      end)
+    end
+})
+
+local NoclipEnabled = false 
+
+local function noclip()
+    local player = Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and part.CanCollide == true then
+            part.CanCollide = false
+        end
+    end
+end
+
+RunService.Stepped:Connect(function()
+    if NoclipEnabled then
+        noclip()
+    end
+end)
+
+Tabs.Visual:Toggle({
+    Title = "No clip",
+    Value = false,
+    Callback = function(state)
+        NoclipEnabled = state
+    end
+})
+
+Tabs.Visual:Slider({
+    Title = "Speed value",
+    Value = {Min = 5, Max = 100, Default = 16},
+    Step = 1,
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value 
+    end
+})
 
     -- ESP Tab
     Tabs.Esp:AddSection("Player")
